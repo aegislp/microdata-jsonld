@@ -20,25 +20,25 @@
 		  		<span aria-hidden="true">&times;</span>
 			</button>
 	<div id="pt-main" class="pt-perspective ">
-		<div class="pt-page pt-page-1  pt-page-current" id="ini-page" >
+		<div class="pt-page pt-page-1 " id="ini-page" >
 			<h1><strong> Microdata: </strong>JsonLD</h1>
 
 			<section class="container-fluid Url">
 				<form class="form-inline row Url-item">
 				   <input  type="url" class="form-control input" value="https://www.rottentomatoes.com/m/black_panther_2018"  disabled />
-				   <button type="submit" class="btn btn-primary mb-2">JSON-LD</button>
+				   <button type="button" class="btn btn-primary mb-2">JSON-LD</button>
 				</form>
 				<form class="form-inline row Url-item">
 				   <input  type="url" class="form-control input" value="http://www.imdb.com/title/tt1825683/"  disabled />
-				   <button type="submit" class="btn btn-primary mb-2">Microdatos</button>
+				   <button type="button" class="btn btn-primary mb-2">Microdatos</button>
 				</form>
 				<form class="form-inline row Url-item">
 				   <input  type="url" class="form-control input" value="http://www.metacritic.com/movie/black-panther"  disabled />
-				   <button type="submit" class="btn btn-primary mb-2">JSON-LD</button>
+				   <button type="button" class="btn btn-primary mb-2">JSON-LD</button>
 				</form>
 				<form class="form-inline row Url-item">
 				   <input  type="url" class="form-control input" value="https://www.ecartelera.com/peliculas/black-panther/"  disabled />
-				   <button type="submit" class="btn btn-primary mb-2">Microdatos</button>
+				   <button type="button" class="btn btn-primary mb-2">Microdatos</button>
 				</form>
 				<form class="form-inline row Url-item">
 				   <select  class="form-control input">
@@ -46,11 +46,11 @@
 				   		<option value="https://kinepolis.es/peliculas/black-panther">https://kinepolis.es/peliculas/black-panther</option>
 				   		<option value="http://www.sensacine.com/peliculas/pelicula-130336/">http://www.sensacine.com/peliculas/pelicula-130336/</option>
 				   </select> 
-				   <button type="submit" class="btn btn-primary mb-2">Generar</button>
+				   <button type="button" class="btn btn-primary mb-2">Generar</button>
 				</form>
 				<form class="form-inline row Url-item">
 				   <input type="url" class="form-control" value=""   />
-				   <button type="submit" class="btn btn-primary mb-2">Generar</button>
+				   <button type="button" class="btn btn-primary mb-2">Generar</button>
 				</form>
 
 			</section>
@@ -67,16 +67,10 @@
 			<footer class="container-fluid d-flex justify-content-start align-items-center" id="log" ></footer>
 		</div>
 		 
-		<div class="pt-page pt-page-2 d-flex align-items-center">
-			<div id="congrats">
-				<h1 id="title"> Datos extraidos! </h1>
-
-			</div>	 	
-		</div>
-		
+ 
 
 
-		<div class="pt-page pt-page-3 Resultados"><h1> <strong>Cinema</strong> Scraping</h1>
+		<div class="pt-page pt-page-3 Resultados" id="res-page"><h1> <strong>Cinema</strong> Scraping</h1>
 			
 			<header class="Resultados-header container">
 				<button class="btn btn-danger btn_reset"  >Reintentar</button>
@@ -135,35 +129,44 @@
 		const electron  = require('electron')
 		const {ipcRenderer} = electron;
  
- 
-		 
+ 		var call = 1;
+ 		function nextPage(p,w){
+ 			console.log("next",w,p)
+ 			$(".pt-page-current").removeClass("pt-page-current")
+			$(p).addClass("pt-page-current")
+ 		}
+		function error(err){
+
+			nextPage("#error-page","error"); 
+		    $(".loader").hide()
+		    console.log("error:",err)
+		} 
 		function init(){
-			$(".pt-page-current").removeClass("pt-page-current")
-			$("#ini-page").addClass("pt-page-current")
+			 
+			nextPage("#ini-page","init"); 
+			 
 			$(".loader").hide()
-			//ipcRenderer.send('info:fetch')
+			$("#res_json").text("") 
+    		$("#img").css({backgroundImage:"url('')"})
+			$("#title_pre").text("")
+			 
 		}
 
 		ipcRenderer.on('finish:all', (event,data) => {  
-		    console.log(data)
-		    PageTransitions.nextPage(7)
-		    fancyPopIn()
-		   
-		    setTimeout(function() {
-		    	PageTransitions.nextPage(5)
-		    	$("#res_json").text(JSON.stringify(data,undefined,2)) 
-
-		    	if(data.length > 0){
-		    		$("#img").css({backgroundImage:"url('"+data[0].image+"')"})
-
-			    	console.log(data[0].name)
-			    	$("#title_pre").text( data[0].name)
-		    	}else{
-		    		 $(".pt-page-current").removeClass("pt-page-current")
-		    		$("#error-page").addClass("pt-page-current")
-		    	}
+		    console.log("finish",data)
+		  	
+	    	if(data.length > 0){
+	    		$("#res_json").text(JSON.stringify(data,undefined,2)) 
+	    		$("#img").css({backgroundImage:"url('"+data[0].image+"')"})
+ 				$("#title_pre").text( data[0].name)
+		    	nextPage("#res-page","init"); 
+			  
+		    	console.log("hay datos",call++)
+	    	}else{
+	    		 error("finish")
+	    	}
 		    	
-		    }, 3000)
+		    
 		 
 		});
 
@@ -171,7 +174,7 @@
 		(function(){
 			
 			//ipcRenderer.send('info:fetch')
-			
+			init();
 			
 			$("#btn_close").on("click", function(){
 
@@ -185,10 +188,12 @@
 			
 			})
  
-			$("form").on("submit", function(e){
+			$("form button").on("click", function(e){
+
+				console.log("submit")
 				e.preventDefault();
 				$(".loader").show()
-				var url = $(this).find(".input").val();
+				var url = $(this).closest("form").find(".input").val();
 
 				ipcRenderer.send('fetch:url',url)
 			
@@ -209,8 +214,7 @@
 		 
 		ipcRenderer.on('error:msg', (event,msg) => {  
 		    
-		    $(".pt-page-current").removeClass("pt-page-current")
-		    $("#error-page").addClass("pt-page-current")
+		   error("interno")
 	 
 		     
 		});
