@@ -33,6 +33,7 @@ ipcMain.on('fetch:url',(event,url)=>{
 	
 	extractor.extract_data(url,function(data){
 		 mainWindow.webContents.send('finish:all',data);
+		  fullData = data;
 	})
 	 
 })
@@ -44,7 +45,7 @@ ipcMain.on('app:close',()=>{
 ipcMain.on('app:save',()=>{
  dialog.showSaveDialog({ filters: [
 
-	     { name: 'data', extensions: ['csv'] }
+	     { name: 'data', extensions: ['json'] }
 
 	    ]}, function (fileName) {
 
@@ -55,8 +56,13 @@ ipcMain.on('app:save',()=>{
 		const opts = { fields };
 		 
  		var parser = new Json2csvParser(opts);
-	  	var csv = parser.parse(fullData);
-		 
+
+ 		console.log(fullData) 	
+
+	  	//var csv = parser.parse(fullData);
+	  	var csv = JSON.stringify(fullData);
+		
+
 	    fs.writeFile(fileName, csv, 'utf8', function (err) {
 			
 			if (err) { return console.log(err);}

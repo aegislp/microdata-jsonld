@@ -87,7 +87,7 @@
 		 		 	<div class="img" id="img">
 		 		 		
 		 		 	</div>
-		 		 	<h4 class="title" id="title_prev"></h4>
+		 		 	<h4 class="title" id="title_pre"></h4>
 		 		 </div>
 		 		 <pre class="Resultados-json" id="res_json">
 		 		 	
@@ -140,6 +140,7 @@
 		function init(){
 			$(".pt-page-current").removeClass("pt-page-current")
 			$("#ini-page").addClass("pt-page-current")
+			$(".loader").hide()
 			//ipcRenderer.send('info:fetch')
 		}
 
@@ -152,11 +153,14 @@
 		    	PageTransitions.nextPage(5)
 		    	$("#res_json").text(JSON.stringify(data,undefined,2)) 
 
-		    	if(data){
+		    	if(data.length > 0){
 		    		$("#img").css({backgroundImage:"url('"+data[0].image+"')"})
 
-		    	console.log(data[0].name)
-		    	$("#title_pre").text( data[0].name)
+			    	console.log(data[0].name)
+			    	$("#title_pre").text( data[0].name)
+		    	}else{
+		    		 $(".pt-page-current").removeClass("pt-page-current")
+		    		$("#error-page").addClass("pt-page-current")
 		    	}
 		    	
 		    }, 3000)
@@ -183,7 +187,7 @@
  
 			$("form").on("submit", function(e){
 				e.preventDefault();
-
+				$(".loader").show()
 				var url = $(this).find(".input").val();
 
 				ipcRenderer.send('fetch:url',url)

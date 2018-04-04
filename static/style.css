@@ -158,6 +158,18 @@ pre{
     width: 200px;
         margin-right: 20px;
 }
-.Resultados-preview .title{
+form button{
+	cursor: pointer;
+	background: rgba(0, 0, 0, 0.45) !important;
+	border-color: #000 !important;
+}
+.loader{
+	display: none;
+}
 
+.Resultados-header .btn_reset{
+	border: none;
+}
+.Resultados-header .btn_reset:hover{
+	background-color: rgba(0,0,0,.2);
 }
